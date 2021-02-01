@@ -1,5 +1,13 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# vim temp files
+*~
+*.swp
+*.swo
+
+#  .eslintcache file
+.eslintcache
+
 # dependencies
 /node_modules
 /.pnp
