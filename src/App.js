@@ -14,10 +14,71 @@ class App extends React.Component{
       editing:false
     }
     this.fetchTasks = this.fetchTasks.bind(this)
+    this.handleChange = this.handleChange.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
+    this.getCookie = this.getCookie.bind(this)
   };
 
   componentWillMount(){
     this.fetchTasks()
+  }
+
+  handleChange(e){
+    var name = e.target.name
+    var value = e.target.value
+    //console.log("Name",name)
+    //console.log("Value",value)
+
+    this.setState({
+      activeItem:{
+        ...this.state.activeItem,
+        title:value
+      }
+    })
+  }
+
+  getCookie(name) {
+ 	let cookieValue = null;
+	 if (document.cookie && document.cookie !== '') {
+		 const cookies = document.cookie.split(';');
+		 for (let i = 0; i < cookies.length; i++) {
+			 const cookie = cookies[i].trim();
+		if (cookie.substring(0, name.length + 1) === (name + '=')) {
+		 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+		 break;
+		 }
+	 }
+	 }
+	 return cookieValue;
+	 }
+
+
+  handleSubmit(e){
+    e.preventDefault()
+    console.log('Item',this.state.activeItem)
+
+    var csrftoken = this.getCookie('csrftoken')
+
+    var url = 'http://127.0.0.1:8000/api/task-create/'
+    fetch(url,{
+      method: 'POST',
+      headers:{
+	'Content-type':'application/json',
+	'X-CSRFToken':csrftoken,
+      },
+      body:JSON.stringify(this.state.activeItem)
+    }).then((response) => {
+	this.fetchTasks()
+      	this.setState({
+	activeItem:{
+	id:null,
+	  title:'',
+	  completed: false,
+	}
+	})
+    }).catch(function(error){
+	console.log('Error:',error)
+    })
   }
 
   fetchTasks(){
@@ -37,10 +98,10 @@ class App extends React.Component{
       <div className="container">
         <div id="task-container">
           <div id="form-wrapper">
-            <form id="form">
+            <form id="form" onSubmit={this.handleSubmit}>
               <div className="flex-wrapper">
                 <div style={{flex:6}}>
-                  <input className="form-control" id="title" type="text" name="title" placeholder="Add task"/>
+                  <input onChange={this.handleChange} className="form-control" value={this.state.activeItem.title}  id="title" type="text" name="title" placeholder="Add task"/>
                 </div>
                 <div style={{flex:6}}>
                   <input className="btn btn-warning" id="submit" type="submit" name="Add"/>
