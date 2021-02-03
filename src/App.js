@@ -17,6 +17,8 @@ class App extends React.Component{
     this.handleChange = this.handleChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
     this.getCookie = this.getCookie.bind(this)
+    this.startEdit= this.startEdit.bind(this)
+    this.deleteItem = this.deleteItem.bind(this)
   };
 
   componentWillMount(){
@@ -59,6 +61,21 @@ class App extends React.Component{
     editing:true,    
     })         
    } 
+
+
+  deleteItem(task){
+    var csrftoken = this.getCookie('csrftoken')
+
+    fetch(`http://127.0.0.1:8000/api/task-delete/${task.id}/`,{
+    method:'DELETE',
+    headers:{
+	'Content-type':'application/json',
+	'X-CSRFToken':csrftoken,
+    },
+    }).then((response)=>{
+    this.fetchTasks()
+    })
+  }  
 
   handleSubmit(e){
     e.preventDefault()
@@ -142,7 +159,7 @@ class App extends React.Component{
                       <button className="btn btn-sm btn-outline-info" onClick={()=>self.startEdit(task)} >Edit</button>
                     </div>
                     <div style={{flex:1}}>
-                      <button className="btn btn-sm btn-outline-danger delete">-</button>
+                      <button className="btn btn-sm btn-outline-danger delete" onClick={()=>self.deleteItem(task)}>-</button>
                     </div>
                   </div>
                 )
