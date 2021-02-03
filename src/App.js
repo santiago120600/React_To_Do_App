@@ -53,6 +53,13 @@ class App extends React.Component{
 	 }
 
 
+   startEdit(task){
+    this.setState({
+    activeItem:task,
+    editing:true,    
+    })         
+   } 
+
   handleSubmit(e){
     e.preventDefault()
     console.log('Item',this.state.activeItem)
@@ -60,8 +67,20 @@ class App extends React.Component{
     var csrftoken = this.getCookie('csrftoken')
 
     var url = 'http://127.0.0.1:8000/api/task-create/'
+    var _method = 'POST'  
+
+    if(this.state.editing ==true){
+        url = `http://127.0.0.1:8000/api/task-update/${this.state.activeItem.id}/`
+        this.setState({
+          editing:false  
+        })
+        _method = 'PUT'
+
+    }
+
+
     fetch(url,{
-      method: 'POST',
+      method: _method,
       headers:{
 	'Content-type':'application/json',
 	'X-CSRFToken':csrftoken,
@@ -94,6 +113,7 @@ class App extends React.Component{
 
   render(){
     var tasks = this.state.todoList
+    var self = this   
     return(
       <div className="container">
         <div id="task-container">
@@ -119,10 +139,10 @@ class App extends React.Component{
                       <span>{task.title}</span>
                     </div>
                     <div style={{flex:1}}>
-                      <button className="btn btn-sm btn-outline-info">Edit</button>
+                      <button className="btn btn-sm btn-outline-info" onClick={()=>self.startEdit(task)} >Edit</button>
                     </div>
                     <div style={{flex:1}}>
-                      <button className="btn btn-sm btn-outline-dark delete">-</button>
+                      <button className="btn btn-sm btn-outline-danger delete">-</button>
                     </div>
                   </div>
                 )
