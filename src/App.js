@@ -19,6 +19,7 @@ class App extends React.Component{
     this.getCookie = this.getCookie.bind(this)
     this.startEdit= this.startEdit.bind(this)
     this.deleteItem = this.deleteItem.bind(this)
+    this.strikeUnstrike = this.strikeUnstrike.bind(this)
   };
 
   componentWillMount(){
@@ -54,6 +55,22 @@ class App extends React.Component{
 	 return cookieValue;
 	 }
 
+
+    strikeUnstrike(task){
+     task.completed = !task.completed
+    var csrftoken = this.getCookie('csrftoken')
+    fetch(`http://127.0.0.1:8000/api/task-update/${task.id}/`,{
+    method:'PUT',
+    headers:{
+	'Content-type':'application/json',
+	'X-CSRFToken':csrftoken,
+    },
+        body:JSON.stringify({'completed':task.completed,'title':task.title})    
+    }).then((response)=>{
+    this.fetchTasks()
+    })
+     // console.log("Task:",task.completed)   
+    }
 
    startEdit(task){
     this.setState({
@@ -118,7 +135,7 @@ class App extends React.Component{
   }
 
   fetchTasks(){
-    console.log("Fetching..")
+   // console.log("Fetching..")
 
     fetch('http://127.0.0.1:8000/api/task-list')
     .then(response => response.json())
@@ -152,8 +169,13 @@ class App extends React.Component{
                 return(
                   <div key={index} className="task-wrapper flex-wrapper">
 
-                    <div style={{flex:7}}>
+                    <div onClick={()=>self.strikeUnstrike(task)} style={{flex:7}}>
+
+                    {task.completed == false ? (
                       <span>{task.title}</span>
+                    ) : (
+                      <strike>{task.title}</strike>
+                    )}
                     </div>
                     <div style={{flex:1}}>
                       <button className="btn btn-sm btn-outline-info" onClick={()=>self.startEdit(task)} >Edit</button>
